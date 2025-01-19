@@ -96,3 +96,13 @@ FROM Orders
     JOIN Customers ON Orders.Customer_Id = Customers.Customer_Id
     JOIN OrderDetails ON Orders.Order_Id = OrderDetails.Order_Id
     JOIN Products ON OrderDetails.Product_Id = Products.Product_Id;
+
+
+-- HÄMTA EN CUSTOMERS ORDER TOTAL PRIS
+SELECT
+    Orders.Order_Id,
+    SUM(Products.Price * OrderDetails.Count) AS 'Total'
+FROM Orders
+    JOIN OrderDetails ON Orders.Order_Id = OrderDetails.Order_Id
+    JOIN Products ON OrderDetails.Product_Id = Products.Product_Id
+GROUP BY Orders.Order_Id;
