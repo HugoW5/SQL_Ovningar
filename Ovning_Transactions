@@ -1,0 +1,39 @@
+
+EXEC BankTransfer @SenderId = 4, @ReciverId = 2, @Type = 'Transfer', @AmountToSend = 8500.00;
+
+SELECT * FROM Accounts;
+SELECT * FROM TransactionLog;
+
+
+CREATE PROCEDURE BankTransfer
+	@SenderId INT,
+	@ReciverId INT,
+	@Type VARCHAR(20),
+	@AmountToSend DECIMAL
+AS
+BEGIN
+DECLARE @SenderBalance Decimal
+SET @SenderBalance = (SELECT Balance FROM Accounts Where AccountId = @SenderId);
+
+IF(@SenderBalance >= @AmountToSend)
+	BEGIN TRY
+		BEGIN TRANSACTION
+			UPDATE Accounts Set Balance = Balance-@AmountToSend where AccountId = @SenderId
+			UPDATE Accounts Set Balance = Balance+@AmountToSend where AccountId = @ReciverId
+			INSERT INTO TransactionLog(AccountId, TransactionType, Amount, TransactionDate)
+				VALUES
+				(@SenderId, 'Widthdrawl' , @AmountToSend, GETDATE()),
+				(@ReciverId, 'Deposit', @AmountToSend, GETDATE());
+			COMMIT 
+			Print 'Transaction Successful'
+	END TRY
+		BEGIN CATCH
+		RollBack
+			Print 'Transaction Failed'
+		END Catch
+ELSE
+Print 'Insuficient Balance'
+END
+
+
+
